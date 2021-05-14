@@ -1,0 +1,13 @@
+{
+  "name": "nodejs-web-app1",
+  "version": "0.0.0",
+  "description": "NodejsWebApp1",
+  "main": "server.js",
+  "author": {
+    "name": ""
+  },
+  "dependencies": {
+    "nodemon": "^2.0.7",
+    "pg": "^8.6.0"
+  }
+}
