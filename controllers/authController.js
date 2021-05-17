@@ -5,16 +5,32 @@ const client = new OAuth2Client(CLIENT_ID);
 
 const maxAge = 3 * 24 * 60 * 60;
 
+module.exports.checkAuthenticated = (req, res) => {
+  let token = req.cookies["session-token"];
+
+  async function verify() {
+    await client.verifyIdToken({
+      idToken: token,
+      audience: CLIENT_ID, // Specify the CLIENT_ID of the app that accesses the backend
+    });
+  }
+  verify()
+    .then(() => {
+      res.send("authorized");
+    })
+    .catch((err) => {
+      res.send("unauthorized");
+    });
+};
+
 module.exports.login_post = async (req, res) => {
   const token = req.body.token;
 
   async function verify() {
-    const ticket = await client.verifyIdToken({
+    await client.verifyIdToken({
       idToken: token,
       audience: CLIENT_ID, // Specify the CLIENT_ID of the app that accesses the backend
     });
-    const payload = ticket.getPayload();
-    const userid = payload["sub"];
   }
 
   await verify()
@@ -26,4 +42,9 @@ module.exports.login_post = async (req, res) => {
       res.send("success");
     })
     .catch(console.error);
+};
+
+module.exports.logout_get = (req, res) => {
+  res.cookie("session-token", "", { maxAge: 1 });
+  res.send();
 };
