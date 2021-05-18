@@ -1,51 +1,29 @@
 "use strict";
 const express = require("express");
 const authRoutes = require("./routes/authRoutes");
+const dbRoutes = require("./routes/dbRoutes");
 const cookieParser = require("cookie-parser");
 const cors = require("cors");
 const { Pool } = require("pg");
 const { OAuth2Client } = require("google-auth-library");
 
-const port = process.env.PORT || 1337;
-let names;
+//const port = process.env.PORT || 1337;
 
 const app = express();
 app.use(cors({ credentials: true, origin: true }));
 app.use(express.json());
 app.use(cookieParser());
 
-let connectionString = {
-  connectionString: process.env.DATABASE_URL,
-  ssl: { rejectUnauthorized: false },
-};
+//let connectionString = {
+//    connectionString: process.env.DATABASE_URL,
+//    ssl: { rejectUnauthorized: false },
+//};
 
-const pool = new Pool(connectionString);
+//const pool = new Pool(connectionString);
 
-const queryselect = `
-SELECT *
-FROM anime
-`;
-
-pool
-  .connect()
-  .then((client) => {
-    client
-      .query(queryselect)
-      .then((res) => {
-        names = res.rows;
-        for (let row of res.rows) {
-          console.log(row);
-        }
-      })
-      .catch((err) => {
-        console.error(err);
-      });
-  })
-  .catch((err) => {
-    console.error(err);
-  });
-
+//module.exports = pool;
 app.use(authRoutes);
+app.use(dbRoutes);
 
 // http
 //   .createServer((req, res) => {
@@ -55,5 +33,5 @@ app.use(authRoutes);
 //   .listen(port);
 
 app.listen(port, () => {
-  console.log("server running...");
+    console.log("server running...");
 });
