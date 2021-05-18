@@ -7,7 +7,7 @@ const cors = require("cors");
 const { Pool } = require("pg");
 const { OAuth2Client } = require("google-auth-library");
 
-//const port = process.env.PORT || 1337;
+const port = process.env.PORT || 1337;
 
 const app = express();
 app.use(cors({ credentials: true, origin: true }));
