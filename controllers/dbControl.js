@@ -13,6 +13,10 @@ const insertratingquery = `
 INSERT INTO AnimeRating(userid, animeid, rating) VALUES((SELECT userid FROM Users WHERE googleid = $1), $2, $3)
 `;
 
+const getUserQuery = `
+SELECT * FROM Users WHERE googleid = $1
+`;
+
 const port = process.env.PORT || 1337;
 
 let connectionString = {
@@ -63,6 +67,12 @@ module.exports.addUser = async (googleId) => {
   const client = await pool.connect();
   const animes = await client.query(insertuserquery, [googleId]);
   return animes.insertId;
+};
+
+module.exports.checkIfUserExists = async (googleId) => {
+  const client = await pool.connect();
+  const res = await client.query(getUserQuery, [googleId]);
+  return res.rows.length === 1;
 };
 
 module.exports.add_user = async (req, res) => {
