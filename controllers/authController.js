@@ -44,9 +44,9 @@ module.exports.login_post = async (req, res) => {
       });
       res.send("success");
     })
-    .catch(err) {
+    .catch((err) => {
       res.status(401).send("unsuccessful");
-    };
+    });
 };
 
 module.exports.logout_get = (req, res) => {
