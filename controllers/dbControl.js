@@ -30,7 +30,7 @@ let connectionString = {
 
 const pool = new Pool(connectionString);
 
-module.exports.add_rating = (req, res) => {
+module.exports.add_rating = async (req, res) => {
         async function verify() {
         const ticket = await client.verifyIdToken({
             idToken: token,
