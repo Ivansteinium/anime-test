@@ -33,7 +33,7 @@ module.exports.login_post = async (req, res) => {
       audience: CLIENT_ID, // Specify the CLIENT_ID of the app that accesses the backend
     });
     const id = ticket.payload.sub;
-    if (!(await checkIfUserExists())) {
+    if (!(await checkIfUserExists(id))) {
       await addUser(id);
     }
   }
@@ -47,7 +47,7 @@ module.exports.login_post = async (req, res) => {
       res.send("success");
     })
     .catch((err) => {
-      console.log(err);
+		console.log(err);
       res.status(401).send("unsuccessful");
     });
 };
