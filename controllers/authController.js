@@ -32,7 +32,7 @@ module.exports.login_post = async (req, res) => {
       idToken: token,
       audience: CLIENT_ID, // Specify the CLIENT_ID of the app that accesses the backend
     });
-    const id = ticket.playload.sub;
+    const id = ticket.payload.sub;
     if (!(await checkIfUserExists())) {
       await addUser(id);
     }
