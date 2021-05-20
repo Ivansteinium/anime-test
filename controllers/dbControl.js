@@ -109,9 +109,6 @@ module.exports.addUser = async (googleId) => {
 module.exports.checkIfUserExists = async (googleId) => {
     const client = await pool.connect();
     const res = await client.query(getUserQuery, [googleId]);
-	console.log(typeof googleId);
-	console.log(res);
-    console.log(res.rows.length);
     return res.rows.length === 1;
 };
 
