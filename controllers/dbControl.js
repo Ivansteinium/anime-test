@@ -1,4 +1,8 @@
 const { Pool } = require("pg");
+const { OAuth2Client } = require("google-auth-library");
+const CLIENT_ID =
+    "1026437203141-p6tbqfjv4nr7r0p9m783lk1ukh6h2924.apps.googleusercontent.com";
+const client = new OAuth2Client(CLIENT_ID);
 
 const queryselectallanime = `
 select animeid, title, studio, description, imageURL, SUM (rating) AS rating from AnimeData natural left join AnimeRating group by animeid;
@@ -29,9 +33,12 @@ let connectionString = {
 };
 
 const pool = new Pool(connectionString);
+pool.connect()
+    .then(() => console.log("Database connection established..."))
+    .catch((e) => console.log(e));
 
 module.exports.add_rating = async (req, res) => {
-        async function verify() {
+    async function verify() {
         const ticket = await client.verifyIdToken({
             idToken: token,
             audience: CLIENT_ID, // Specify the CLIENT_ID of the app that accesses the backend
@@ -39,76 +46,76 @@ module.exports.add_rating = async (req, res) => {
         return ticket.playload.sub;
     }
 
+    let googleid;
     try {
-        const googleid = await verify();
+        googleid = await verify();
     }
     catch(err) {
         res.status(401).send('Unauthorized');
     }
 
     const { animeid, rating } = req.body;
-    pool
-        .connect()
-        .then((client) => {
-            client
-                .query(insertratingquery, [googleid, animeid, rating])
-                .then((animes) => {
-                    res.status(201).send(`User added with ID: ${animes.insertId}`);
-                })
-                .catch((err) => {
-                    console.error(err);
-                });
-        })
-        .catch((err) => {
-            console.error(err);
-        });
+
+    try {
+        const animes = await pool.query(insertratingquery, [googleid, animeid, rating]);
+        res.status(201).send(`User added with ID: ${animes.insertId}`);
+    } catch (err) {
+        console.error(err);
+    }
+    //client
+    //    .query(insertratingquery, [googleid, animeid, rating])
+    //    .then((animes) => {
+    //        res.status(201).send(`User added with ID: ${animes.insertId}`);
+    //    })
+    //    .catch((err) => {
+    //        console.error(err);
+    //    });
 };
 
 module.exports.list_anime = async (req, res) => {
-    pool
-        .connect()
-        .then((client) => {
-            client
-                .query(queryselectallanime)
-                .then((animes) => {
-                    res.status(200).json(animes.rows);
-                })
-                .catch((err) => {
-                    console.error(err);
-                });
-        })
-        .catch((err) => {
-            console.error(err);
-        });
+    try {
+        console.log(pool);
+        const animes = await pool.query(queryselectallanime);
+        res.status(200).json(animes.rows);
+    } catch(err) {
+        console.error(err);
+    }
+    //client
+    //    .query(queryselectallanime)
+    //    .then((animes) => {
+    //        res.status(200).json(animes.rows);
+    //    })
+    //    .catch((err) => {
+    //        console.error(err);
+    //    });
+
 };
 
 module.exports.list_single_anime = async (req, res) => {
-    pool
-        .connect()
-        .then((client) => {
-            client
-                .query(querysingleanime, [req.params.id])
-                .then((animes) => {
-                    res.status(200).json(animes.rows);
-                })
-                .catch((err) => {
-                    console.error(err);
-                });
-        })
-        .catch((err) => {
-            console.error(err);
-        });
+    try {
+        const animes = await pool.query(querysingleanime, [req.params.id]);
+        res.status(200).json(animes.rows);
+    } catch(err) {
+        console.error(err);
+    }
+    
+    //client
+    //    .query(querysingleanime, [req.params.id])
+    //    .then((animes) => {
+    //        res.status(200).json(animes.rows);
+    //    })
+    //    .catch((err) => {
+    //        console.error(err);
+    //    });
 };
 
 module.exports.addUser = async (googleId) => {
-    const client = await pool.connect();
-    const animes = await client.query(insertuserquery, [googleId]);
+    const animes = await pool.query(insertuserquery, [googleId]);
     return animes.insertId;
 };
 
 module.exports.checkIfUserExists = async (googleId) => {
-    const client = await pool.connect();
-    const res = await client.query(getUserQuery, [googleId]);
+    const res = await pool.query(getUserQuery, [googleId]);
     return res.rows.length === 1;
 };
 
