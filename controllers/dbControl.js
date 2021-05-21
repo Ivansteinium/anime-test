@@ -9,7 +9,7 @@ select animeid, title, studio, description, imageURL, SUM (rating) AS rating fro
 `;
 
 const querysingleanime = `
-select animeid, title, studio, description, imageURL, SUM (rating) AS rating from AnimeData natural left join AnimeRating where animeid=$1 group by animeid;
+select animeid, title, studio, description, imageURL, SUM (rating) AS rating, backgroundURL from AnimeData natural left join AnimeRating where animeid=$1 group by animeid;
 `;
 
 
@@ -38,6 +38,11 @@ pool.connect()
     .catch((e) => console.log(e));
 
 module.exports.add_rating = async (req, res) => {
+	const token = req.cookies["session-token"];
+	console.log(token);
+    console.log(req.cookies);
+	console.log(req.headers.cookie);
+	
     async function verify() {
         const ticket = await client.verifyIdToken({
             idToken: token,
@@ -51,7 +56,9 @@ module.exports.add_rating = async (req, res) => {
         googleid = await verify();
     }
     catch(err) {
+		console.log(err);
         res.status(401).send('Unauthorized');
+		return;
     }
 
     const { animeid, rating } = req.body;
@@ -74,7 +81,6 @@ module.exports.add_rating = async (req, res) => {
 
 module.exports.list_anime = async (req, res) => {
     try {
-        console.log(pool);
         const animes = await pool.query(queryselectallanime);
         res.status(200).json(animes.rows);
     } catch(err) {

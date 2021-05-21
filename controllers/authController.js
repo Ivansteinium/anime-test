@@ -41,10 +41,10 @@ module.exports.login_post = async (req, res) => {
   await verify()
     .then(() => {
       res.cookie("session-token", token, {
-        httpOnly: true,
+		domain: '.app.localhost',
+        httpOnly: false,
         maxAge: maxAge * 1000,
-      });
-      res.send("success");
+      }).send("success");
     })
     .catch((err) => {
 		console.log(err);
